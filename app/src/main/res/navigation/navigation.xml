@@ -9,5 +9,16 @@
         android:id="@+id/titleFragment"
         android:name="org.singlebit.ploki.title.TitleFragment"
         android:label="fragment_title"
-        tools:layout="@layout/fragment_title" />
+        tools:layout="@layout/fragment_title" >
+        <action
+            android:id="@+id/action_titleFragment_to_searchFragment"
+            app:destination="@id/searchFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="org.singlebit.ploki.search.SearchFragment"
+        android:label="SearchFragment" />
+    <navigation
+        android:id="@+id/navigation2"
+        app:startDestination="@id/titleFragment" />
 </navigation>
