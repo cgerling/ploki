@@ -1,68 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".title.TitleFragment"
-    >
+    tools:context=".title.TitleFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
-
-        <ImageView
-            android:id="@+id/app_logo"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:layout_marginTop="80dp"
-            android:background="#000"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            />
+        android:layout_height="match_parent">
 
         <TextView
-            android:id="@+id/app_name"
+            android:id="@+id/title"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:enabled="true"
+            android:layout_height="0dp"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/lobster"
             android:text="@string/app_name"
-            android:textAlignment="center"
-            android:textSize="32sp"
-            app:layout_constraintEnd_toEndOf="@+id/app_logo"
-            app:layout_constraintStart_toStartOf="@+id/app_logo"
-            app:layout_constraintTop_toBottomOf="@+id/app_logo"
-            />
+            android:textColor="@android:color/primary_text_light"
+            android:textSize="30sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <SearchView
             android:id="@+id/search_view"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginTop="64dp"
-            android:layout_marginEnd="24dp"
-            android:iconifiedByDefault="false"
-            android:inputType="text"
-            android:queryHint="Search for articles"
+            style="@style/SearchField"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/app_name"
-            />
+            app:layout_constraintTop_toBottomOf="@+id/title" />
+
+        <TextView
+            android:id="@+id/discover_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="36dp"
+            android:fontFamily="sans-serif-smallcaps"
+            android:text="@string/discover_word"
+            android:textColor="@color/colorAccent"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/search_view" />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/articles"
+            android:id="@+id/featured_articles"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/search_view"
-            tools:listitem="@layout/article_item"
-            />
+            app:layout_constraintTop_toBottomOf="@+id/discover_text"
+            tools:listitem="@layout/article_item" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

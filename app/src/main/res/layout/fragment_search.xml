@@ -15,12 +15,8 @@
 
         <SearchView
             android:id="@+id/search_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            style="@style/SearchField"
             android:layout_marginTop="8dp"
-            android:iconifiedByDefault="false"
-            android:inputType="text"
-            android:queryHint="Search for articles"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -32,7 +28,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/search_view"
-            tools:listitem="@layout/article_item" />
+            tools:listitem="@layout/search_article_item" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

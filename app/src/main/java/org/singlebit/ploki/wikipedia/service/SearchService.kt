@@ -1,61 +1,134 @@
 package org.singlebit.ploki.wikipedia.service
 
-import android.content.Context
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
-import java.util.Locale
 import org.json.JSONObject
-import org.singlebit.ploki.wikipedia.model.SearchResultItem
+import org.singlebit.ploki.core.constants.WIKIPEDIA_API_URL
+import org.singlebit.ploki.core.extensions.map
 import org.singlebit.ploki.wikipedia.http.HttpService
-import org.singlebit.ploki.wikipedia.http.*
+import org.singlebit.ploki.wikipedia.http.bindTemplateValuesOf
+import org.singlebit.ploki.wikipedia.http.queryOf
+import org.singlebit.ploki.wikipedia.model.ArticleItem
+import org.singlebit.ploki.wikipedia.timestampToDate
 
-class SearchService(locale: Locale, context: Context) {
-    private val httpService = HttpService(context)
-
-    private val baseUrl = "https://${locale.language}.wikipedia.org/w/api.php?"
-    private val searchUrl = baseUrl + query(
-        mapOf(
-            "action" to "query",
-            "list" to "search",
-            "srwhat" to "text",
-            "format" to "json",
-            "srinteerwiki" to true,
-            "srsearch" to "{term}"
-        )
-    )
-    private val getArticleUrl = baseUrl + query(
-        mapOf("action" to "parse", "prop" to "text", "format" to "json", "pageid" to "{pageid}")
+class SearchService : HttpService(WIKIPEDIA_API_URL) {
+    private val defaultQuery = arrayOf(
+        "format" to "json",
+        "action" to "query"
     )
 
-    fun search(term: String, listener: Response.Listener<List<SearchResultItem>>, errorListener: Response.ErrorListener): JsonObjectRequest {
-        val url =
-            bindTemplateValues(
-                searchUrl,
-                mapOf("term" to term)
-            )
+    private val searchUrl = baseUrl + queryOf(
+        *defaultQuery,
+        "list" to "search",
+        "srwhat" to "text",
+        "srsearch" to "{term}"
+    )
+
+    private val getRandomArticlesUrl = baseUrl + queryOf(
+        *defaultQuery,
+        "list" to "random",
+        "rnlimit" to "{count}"
+    )
+
+    private val getMostViewedArticlesUrl = baseUrl + queryOf(
+        *defaultQuery,
+        "list" to "mostviewed",
+        "pvimlimit" to "{count}"
+    )
+
+    fun search(
+        term: String,
+        listener: Response.Listener<List<ArticleItem>>,
+        errorListener: Response.ErrorListener
+    ): JsonObjectRequest {
+        val url = bindTemplateValuesOf(searchUrl, "term" to term)
+
         val searchListener = Response.Listener<JSONObject> {
-            val response = mutableListOf<SearchResultItem>()
-
-            val result = it.getJSONObject("query").getJSONArray("search")
-            for (i in 0 until result.length()) {
-                val item = result.getJSONObject(i)
-                response.add(SearchResultItem.fromJSON(item))
-            }
+            val response = parseSearchResponse(it)
 
             listener.onResponse(response)
         }
 
-        return httpService.get(url, searchListener, errorListener)
+        return get(url, searchListener, errorListener)
     }
 
-    fun getArticle(id: Int, listener: Response.Listener<JSONObject>, errorListener: Response.ErrorListener): JsonObjectRequest {
-        val url =
-            bindTemplateValues(
-                getArticleUrl,
-                mapOf("pageid" to id)
+    private fun parseSearchResponse(response: JSONObject): List<ArticleItem> {
+        val list = response.getJSONObject("query")
+            .getJSONArray("search")
+
+        return list.map { data ->
+            val item = data as JSONObject
+
+            ArticleItem(
+                ns = item.getInt("ns"),
+                title = item.getString("title"),
+                pageId = item.getInt("pageid"),
+                size = item.getInt("size"),
+                wordcount = item.getInt("wordcount"),
+                snippet = item.getString("snippet"),
+                timestamp = timestampToDate(
+                    item.getString(
+                        "timestamp"
+                    )
+                )
             )
-        return httpService.get(url, listener, errorListener)
+        }
     }
 
+    fun getRandomArticles(
+        count: Int = 10,
+        listener: Response.Listener<List<ArticleItem>>,
+        errorListener: Response.ErrorListener
+    ): JsonObjectRequest {
+        val url = bindTemplateValuesOf(getRandomArticlesUrl, "count" to count)
 
+        val parseListener = Response.Listener<JSONObject> {
+            val response = parseGetRandomArticlesResponse(it)
+            listener.onResponse(response)
+        }
+
+        return get(url, parseListener, errorListener)
+    }
+
+    private fun parseGetRandomArticlesResponse(response: JSONObject): List<ArticleItem> {
+        val list = response.getJSONObject("query").getJSONArray("random")
+
+        return list.map { data ->
+            val item = data as JSONObject
+
+            ArticleItem(
+                ns = item.getInt("ns"),
+                pageId = item.getInt("id"),
+                title = item.getString("title")
+            )
+        }
+    }
+
+    fun getMostViewedArticles(
+        count: Int = 10,
+        listener: Response.Listener<List<ArticleItem>>,
+        errorListener: Response.ErrorListener
+    ): JsonObjectRequest {
+        val url = bindTemplateValuesOf(getMostViewedArticlesUrl, "count" to count)
+
+        val parseListener = Response.Listener<JSONObject> {
+            val response = parseGetMostViewedArticles(it)
+            listener.onResponse(response)
+        }
+
+        return get(url, parseListener, errorListener)
+    }
+
+    private fun parseGetMostViewedArticles(response: JSONObject): List<ArticleItem> {
+        val list = response.getJSONObject("query").getJSONArray("mostviewed")
+
+        return list.map { data ->
+            val item = data as JSONObject
+
+            ArticleItem(
+                ns = item.getInt("ns"),
+                title = item.getString("title")
+            )
+        }
+    }
 }

@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Ploki</string>
+    <string name="discover_word">Discover</string>
 </resources>

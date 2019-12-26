@@ -1,27 +1,35 @@
 package org.singlebit.ploki.wikipedia.configuration
 
-import android.content.Context
 import com.android.volley.Request
-import com.android.volley.toolbox.Volley
-import com.android.volley.RequestQueue as VolleyRequestQueue
+import com.android.volley.toolbox.BasicNetwork
+import com.android.volley.toolbox.HurlStack
+import com.android.volley.toolbox.NoCache
+import com.android.volley.RequestQueue as VolleyQueue
 
-class RequestQueue constructor(context: Context) {
+class RequestQueue {
     companion object {
         @Volatile
         private var INSTANCE: RequestQueue? = null
-        fun getInstance(context: Context) =
+        fun getInstance() =
             INSTANCE ?: synchronized(this) {
-                INSTANCE ?: RequestQueue(context).also {
+                INSTANCE ?: RequestQueue().also {
                     INSTANCE = it
                 }
             }
     }
 
-    private val requestQueue: VolleyRequestQueue by lazy {
-        Volley.newRequestQueue(context.applicationContext)
+    private val requestQueue: VolleyQueue by lazy {
+        val cache = NoCache()
+        val network = BasicNetwork(HurlStack())
+
+
+        VolleyQueue(cache, network).also {
+            it.start()
+        }
     }
 
-    fun <T> add(req: Request<T>) {
-        requestQueue.add(req)
+    fun <T> add(request: Request<T>) {
+        request.setShouldCache(false)
+        requestQueue.add(request)
     }
 }
